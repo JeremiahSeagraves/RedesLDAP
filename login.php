@@ -79,7 +79,7 @@ $listaDispositivos = mysql_query("select * from usuarios where Matricula = $usua
                 </tr>
             </thead>
             <tbody>
-                <?php while ($row = mysql_fetch_array($result)){ $numero=0;?>
+                <?php while ($row = mysql_fetch_array($result)){ $numero=1;?>
                 <tr>
                     <th scope="row"><?php echo $numero;?></th>
                     <td><?php echo $row["MAC"];?> </td>
