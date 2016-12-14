@@ -8,18 +8,17 @@
 
         $usuario = $_POST['matricula'];
         $contrasenia = $_POST['password'];
+        setcookie("usuario",$usuario);
 
         $conexion = conectarse();
         if (!validar($conexion, $usuario, $contrasenia)) {
             header("Location:index.html");
         }
-
         $info = obtenerDatosUsuarioValidado($conexion, $usuario);
 
 
         for ($i = 0; $i < $info["count"]; $i++) {
             $nombreUsuario = $info[$i]["cn"][0];
-            $matriculaUsuario = $info[$i]["mail"][0];
         }
         ?>
 
@@ -28,43 +27,44 @@
     </center>
     <div class="container">	
         <form>
-            <div class="form-group">
+              <div class="form-group">
                 <label for="formGroupInput">Nombre:</label>
                 <input type="text" name="nombre" class="form-control" id="nombreGroupInput" value="<?php echo $nombreUsuario; ?>" disabled="true">
             </div>
             <div class="form-group">
-                <label for="formGroupInput2">Correo:</label>
-                <input type="text" name="correo" class="form-control" id="matriculaExampleInput" value="<?php echo $matriculaUsuario; ?>" disabled="true">
+                <label for="formGroupInput2">Matricula:</label>
+                <input type="text" name="matricula" class="form-control" id="matriculaInput" value="<?php echo $usuario; ?>" disabled="true">
             </div>
         </form>
     </div>
 
 
     <div class="container">
-        <h3>Registre su dispositivo</h3>
-        <form class="form-inline">
+        <form class="form-inline" action="registrarMacAdress.php" method="POST">
+            <h3>Registre su dispositivo</h3>
+            
             <div class="form-group">
                 <label class="sr-only" for="inputMac">Mac</label>
-                <input type="text" class="form-control" id="inputMac" name="inputMac" placeholder="Introduzca su Mac Adress">
-                <button type="submit" class="btn btn-secondary" onclick="foo()">Determinar Mac Adress</button>    
+                <input type="text" class="form-control" id="inputMac" name="inputMac" placeholder="Introduzca su Mac Adress">   
             </div>
-
-            <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Seleccione su Dispositivo
-                </button>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-
-                </div>
+            <br>
+            
+            <div class="form-group">
+                <label class="sr-only" for="inputTipo">Tipo</label>
+                <input type="text" class="form-control" id="inputTipo" name="inputTipo" placeholder="Tipo de Dispositivo">   
             </div>
-
-            <button type="button" class="btn btn-primary">Agregar</button>
+            <div class="form-group">
+                <label class="sr-only" for="inputMarca">Marca</label>
+                <input type="text" class="form-control" id="inputMarca" name="inputMarca" placeholder="Marca de Dispositivo">   
+            </div>
+            <br> <br>
+            <button type="submit" class="btn btn-primary">Agregar</button>
         </form>
     </div>
 <?php
-include 'ConexionBD';
+include 'ConexionBD.php';
 $enlace = conectarBD();
-$listaDispositivos = mysql_query("select * from usuarios where Matricula = $usuario", $link);
+$listaDispositivos = mysqli_query( $enlace,"select * from usuarios where Matricula = '$usuario'");
 
 ?>
     <div class="container">
@@ -74,22 +74,28 @@ $listaDispositivos = mysql_query("select * from usuarios where Matricula = $usua
                 <tr>
                     <th>#</th>
                     <th>Mac Adress</th>
-                    <th>Dispositivo</th>
+                    <th>Tipo</th>
+                    <th>Marca</th>
                     <th>Eliminar</th>
                 </tr>
             </thead>
             <tbody>
-                <?php while ($row = mysql_fetch_array($result)){ $numero=0;?>
+                <?php $numero=0; while ($row = mysqli_fetch_array($listaDispositivos)){;?>
                 <tr>
-                    <th scope="row"><?php echo $numero;?></th>
+                    <th scope="row"><?php echo ++$numero?></th>
                     <td><?php echo $row["MAC"];?> </td>
                     <td><?php echo $row["Tipo"];?> </td>
                     <td><?php echo $row["Marca"];?> </td>
                     <td>
-                        <a class="btn btn-primary" href="#" role="button" onclick="eliminarDisp()">Eliminar</a>
+                        <form action="eliminar.php" method="POST">
+                            <?php $name = "mac".$numero; setcookie($name,$row["MAC"]);?>
+                            <input type="submit" name="<?php echo $numero;?>" value="Eliminar" class="btn btn-primary"/>
+                        
+                        </form>
                     </td>
+                    
                 </tr>
-                <?php $numero++;}?>
+                <?php }?>
             </tbody>
         </table>
     </div>
@@ -97,7 +103,7 @@ $listaDispositivos = mysql_query("select * from usuarios where Matricula = $usua
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js" integrity="sha384-3ceskX3iaEnIogmQchP8opvBy3Mi7Ce34nWjpBIwVTHfGYWQS9jwHDVRnpKKHJg7" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.3.7/js/tether.min.js" integrity="sha384-XTs3FgkjiBgo8qjEjBk0tGmf3wPrWtA6coPfQDfFEY8AnYJwjalXCiosYRBIBZX8" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/js/bootstrap.min.js" integrity="sha384-BLiI7JTZm+JWlgKa0M0kGRpJbF2J8q+qreVrKBC47e3K6BW78kGLrCkeRX6I9RoK" crossorigin="anonymous"></script>
-    <script>
+<!--    <script>
                   function foo() {
                       $.ajax({
                           url: "getMacAdress.php",
@@ -110,12 +116,26 @@ $listaDispositivos = mysql_query("select * from usuarios where Matricula = $usua
                           }
                       });
                   }
-    </script>
+    </script>-->
 
     <script>
-        function eliminarDisp() {
-            alert("Hola");
-        }
+        function agregarDisp() {
+            $.ajax({
+                type:"POST",
+                url:"registrarMacAdress.php",
+                data:{mac:document.getElementById("inputMac").value, 
+                matricula:document.getElementById("matriculaInput").value,
+                tipo:$("tipo").text(),
+                marca:document.getElementById("inputMarca").value},
+                success:function(){
+                    alert("Exito");
+                },
+                error:function(){
+                    alert("Error");
+                }
+            });
+            alert("Hola")
+        };
     </script>
 </body>
 </html>
